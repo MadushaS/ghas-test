@@ -1,10 +1,17 @@
 
+###
+GET http://localhost:3000/
+
+###
+// send req to url1
+GET http://localhost:3000/api/data?url=https://google.com
 
 
-POST http://localhost:3000/send-message HTTP/1.1
+###
+POST http://localhost:3000/api/auth HTTP/1.1
 Content-Type: application/json
 
 {
-    "message": "Hi there!"
+     "username": "admin",
+     "password": "password"
 }
-

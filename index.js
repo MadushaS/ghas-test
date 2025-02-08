@@ -1,45 +1,51 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-import { Configuration, OpenAIApi } from 'openai';
+import jwt from 'jsonwebtoken';
+import axios from 'axios';
+import { config } from 'dotenv';
+config();
 
 const app = express();
-const port = 3000;
 
-// Middleware
-app.use(bodyParser.json());
-app.use(express.static('public'));
+// Hardcoded secrets
+const AWS_KEY = 'AKIAIOSFODNN7EXAMPLE';
+const AWS_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
+const JWT_SECRET = 'APP_SECRET';
 
-// Configure OpenAI with API key
-const configuration = new Configuration({
-    apiKey: 'sample key here',
-});
-const openai = new OpenAIApi(configuration);
+app.use(express.json());
 
-// Basic endpoint to handle chat messages
-app.post('/send-message', async (req, res) => {
+app.get('/api/data', async (req, res) => {
+    const { url } = req.query;
+    // Validate URL
     try {
-        const { message } = req.body;
-        
-        const completion = await openai.createCompletion(
-            'davinci', 
-            {
-                model: 'davinci',
-                messages: [
-                    { role: 'system', content: 'You are a helpful assistant.' },
-                    { role: 'user', content: message },
-                ],
-            });
-
-        res.json({ 
-            response: completion.data.choices[0].text 
-        });
+        const parsedUrl = new URL(url);
+        const sanitizedUrl = parsedUrl.toString().replace(/\/\.\.\//g, '/');
+        const response = await axios.get(sanitizedUrl);
+        res.json(response.data);
     } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: 'Invalid URL' });
     }
 });
 
-// Start server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+app.post('/api/auth', (req, res) => {
+
+    const token = jwt.sign(
+        { userId: 123 },
+        JWT_SECRET,
+        { algorithm: 'HS256' }
+    );
+    res.json({ token, message: 'Token generated', config: awsConfig() });
 });
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Hello World' });
+});
+
+function awsConfig() {
+    return {
+        accessKeyId: AWS_KEY.length,
+        secretAccessKey: AWS_SECRET.length,
+    };
+}
+
+app.listen(3000, () =>
+    console.log('Server running on http://localhost:3000'));
