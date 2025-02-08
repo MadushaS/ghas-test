@@ -7,9 +7,9 @@ config();
 const app = express();
 
 // Hardcoded secrets
-const AWS_KEY = 'AKIAIOSFODNN7EXAMPLE';
-const AWS_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
-const JWT_SECRET = 'APP_SECRET';
+const AWS_KEY = process.env.AWS_KEY;
+const AWS_SECRET = process.env.AWS_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(express.json());
 
